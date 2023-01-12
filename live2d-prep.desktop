@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=live2d-prep
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=Live2D Exporter
+Comment=Prepares a Krita document for Live2D export
