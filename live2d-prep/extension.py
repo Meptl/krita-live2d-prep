@@ -1,4 +1,4 @@
-from krita import Krita, InfoObject
+from krita import Krita, Extension, InfoObject
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 import os
 
@@ -52,6 +52,41 @@ def removeMergedSuffix(node):
         node.setName(node.name()[:-7])
 
 
+def save_as_psd(node):
+    application = Krita.instance()
+    window = application.activeWindow()
+    currentDoc = application.activeDocument()
+    currentView = window.activeView()
+
+    currentView.setVisible()
+    application.setActiveDocument(currentDoc)
+    currentDoc.setActiveNode(node)
+    application.action("edit_copy").trigger()
+
+    newDoc = application.createDocument(
+        node.bounds().width(), node.bounds().height(),
+        node.name() + ".psd",
+        currentDoc.colorModel(),
+        currentDoc.colorDepth(),
+        currentDoc.colorProfile(),
+        currentDoc.resolution()
+    )
+    window.addView(newDoc)
+    application.setActiveDocument(newDoc)
+    application.action("edit_paste").trigger()
+    Krita.instance().activeDocument().waitForDone()
+    newDoc.refreshProjection()
+
+    outfile = os.path.join(os.path.dirname(currentDoc.fileName()),
+                           node.name() + ".psd")
+    newDoc.saveAs(outfile)
+    print(f'Saving {outfile}')
+    newDoc.close()
+
+    currentView.setVisible()
+    application.setActiveDocument(currentDoc)
+    currentDoc.setActiveNode(node)
+
 class Live2DExporterExtension(Extension):
     def __init__(self, parent):
         super().__init__(parent)
@@ -65,7 +100,7 @@ class Live2DExporterExtension(Extension):
         action = window.createAction("live2d_export",
                                      "Live2D Export",
                                      "tools/scripts")
-        action.triggered.connect(self.showExportDialog)
+        action.triggered.connect(self.live2d_export)
 
 
     def showErrorWindow(self, message):
@@ -86,8 +121,8 @@ class Live2DExporterExtension(Extension):
         application = Krita.instance()
         currentDoc = application.activeDocument()
 
-        if currentDoc.save():
-            self.showErrorWindow("Failed to save the document. Aborting operation.")
+        if currentDoc.modified():
+            self.showErrorWindow("Current document has modifications. Aborting operation.")
             return
 
         # Check for name conflicts.
@@ -108,14 +143,11 @@ class Live2DExporterExtension(Extension):
             forLeafs(node, removeMergedSuffix)
 
         for node in visibleTopLevelNodes(currentDoc):
-            outfile = os.path.join(os.path.dirname(currentDoc.fileName()),
-                                   node.name() + ".psd")
-            node.save(outfile, node.bounds().width(), node.bounds().height(), InfoObject())
-            print(f'Saving {outfile}')
+            save_as_psd(node)
 
         # Reopen the document so all changes are lost.
-        # Prevent autosave/discard changes dialog.
-        currentDoc.setModified(False)
-        currentDoc.close()
+        # Setting the modified flag, prevents autosave/discard changes dialog.
         newDoc = application.openDocument(currentDoc.fileName())
         Krita.instance().activeWindow().addView(newDoc)
+        currentDoc.setModified(False)
+        currentDoc.close()
