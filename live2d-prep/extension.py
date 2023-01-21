@@ -73,7 +73,9 @@ def save_as_psd(node):
     )
     window.addView(newDoc)
     application.setActiveDocument(newDoc)
+    default_layer = newDoc.topLevelNodes()[0]
     application.action("edit_paste").trigger()
+    default_layer.remove()
     Krita.instance().activeDocument().waitForDone()
     newDoc.refreshProjection()
 
@@ -122,7 +124,7 @@ class Live2DExporterExtension(Extension):
         currentDoc = application.activeDocument()
 
         if currentDoc.modified():
-            self.showErrorWindow("Current document has modifications. Aborting operation.")
+            self.showErrorWindow("Current document has unsaved changes. Aborting operation.")
             return
 
         # Check for name conflicts.
