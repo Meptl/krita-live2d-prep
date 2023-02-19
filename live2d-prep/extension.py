@@ -133,6 +133,7 @@ class Live2DExporterExtension(Extension):
             self.showErrorWindow("There are multiple top-level layers that share a name. Aborting operation.")
 
 
+        Krita.instance().action("deselect").trigger()
         # Merging whilst editting groups was having issues with what the "activeNode"
         # resolved to. So we iterate multiple times over the node tree.
         for node in visibleTopLevelNodes(currentDoc):
