@@ -12,7 +12,7 @@ separate layers:
 ![](./pics/pre-example.png)
 
 
-This plugin will produce the following:
+This plugin will produce a BasedLIZ.psd with the following:
 
 ![](./pics/post-example.png)
 
