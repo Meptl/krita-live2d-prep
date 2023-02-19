@@ -9,6 +9,7 @@ It does the following:
 A project with the following layer heirarchy where lineart and fill colors are
 separate layers:
 ![](./pics/pre-example.png)
+
 This plugin will produce the following:
 ![](./pics/post-example.png)
 
