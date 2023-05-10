@@ -1,0 +1,19 @@
+name: build
+
+on: 
+  - push
+  - delete
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Git Repo Sync
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: wangchucheng/git-repo-sync@master
+      with:
+        target-url: 'https://gitlab.com/Meptl/krita-live2d-prep.git'
+        target-username: 'Meptl'
+        target-token: ${{ secrets.GIT_SYNC_TOKEN }}
