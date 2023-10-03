@@ -152,4 +152,3 @@ class Live2DExporterExtension(Extension):
         newDoc = application.openDocument(currentDoc.fileName())
         Krita.instance().activeWindow().addView(newDoc)
         currentDoc.setModified(False)
-        currentDoc.close()
